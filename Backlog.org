@@ -1,0 +1,5 @@
+* NEXT add support for labels *above* marks
+* NEXT add support for properly “typesetting” rationals
+* NEXT add documentation
+* NEXT introduce hspec
+* NEXT do not use ~Diagram B~ everywhere
