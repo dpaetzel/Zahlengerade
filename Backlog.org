@@ -1,5 +1,12 @@
+* NEXT add user-friendly data representation
+* NEXT add input file parser
 * NEXT add support for labels *above* marks
 * NEXT add support for properly “typesetting” rationals
-* NEXT add documentation
-* NEXT introduce hspec
-* NEXT do not use ~Diagram B~ everywhere
+* NEXT remove ~instance Show Label~ (unneeded)
+* DONE add documentation
+  CLOSED: [2016-11-12 Sat 18:06]
+  :LOGBOOK:
+  - State "DONE"       from "NEXT"       [2016-11-12 Sat 18:06]
+  :END:
+* MAYBE introduce using hspec
+* MAYBE do not use ~Diagram B~ everywhere

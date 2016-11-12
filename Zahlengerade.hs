@@ -1,6 +1,20 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
 
+{-|
+Module      : Zahlengerade
+Description : Simple library for rendering number lines using the
+              <http://projects.haskell.org/diagrams/ diagrams> library.
+Copyright   : (c) David Pätzel, 2016
+License     : GPL-3
+Maintainer  : david.a.paetzel@gmail.com
+Stability   : experimental
+Portability : POSIX
+-}
+-- TODO add more general documentation above
+module Zahlengerade where
+
+
 import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 
@@ -20,14 +34,20 @@ instance Show Label where
   show (RationalLabel r) = show r
   show (StringLabel s) = show s
 
--- text has to be put into an (opaque) square in order to “take up space”
+{-|
+Creates a diagram from the supplied label using the given size.  In order for
+the label's text to “take up space”, it needs to be surrounded by e.g. a
+transparent square (actually, be 'atop' of a transparent square).
+-}
 drawLabel :: Double -> Label -> Diagram B
 drawLabel size label = square size # opacity 0.0 <> labelText # fontSize (local size)
   where
     labelText :: Diagram B
     labelText = text (show label)
 
--- a mark on a scale (consisting of a little stroke and a label below it)
+{-|
+Creates a mark consisting of a little stroke and a label below it.
+-}
 scaleMark :: Double -> Label -> Diagram B
 scaleMark size label = (stroke
                         ===
@@ -37,11 +57,18 @@ scaleMark size label = (stroke
     stroke = vrule size
 
 
-type Step = Double
+{-|
+A number line is made up from a set of steps after each of which a 'scaleMark'
+is to be drawn (containing corresponding label).
+-}
 type NumberLine = [(Step, Label)]
+type Step = Double
 
-numberLine :: NumberLine -> Diagram B
-numberLine nl = connect "first" "last" scaleMarks
+{-|
+Creates a diagram from a 'NumberLine'.
+-}
+drawNumberLine :: NumberLine -> Diagram B
+drawNumberLine nl = connect "first" "last" scaleMarks
   where
     length = sum . map fst $ nl
 
@@ -56,4 +83,4 @@ testLine = map (\n -> (1, IntegerLabel n)) numbers
     numbers = [0..10]
 
 main :: IO ()
-main = mainWith . numberLine $ testLine
+main = mainWith . drawNumberLine $ testLine
