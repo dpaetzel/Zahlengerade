@@ -3,6 +3,7 @@ let
   inherit (nixpkgs) pkgs;
   ghc = pkgs.haskellPackages.ghcWithPackages (haskellPkgs: with haskellPkgs; [
           diagrams
+          regex-pcre
         ]);
 in
 pkgs.stdenv.mkDerivation {

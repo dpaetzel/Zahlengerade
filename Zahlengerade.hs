@@ -34,13 +34,18 @@ instance Show Label where
   show (RationalLabel r) = show r
   show (StringLabel s) = show s
 
+-- TODO proper implementation
+labelFromString :: String -> Label
+labelFromString = StringLabel
+
 {-|
 Creates a diagram from the supplied label using the given size.  In order for
 the label's text to “take up space”, it needs to be surrounded by e.g. a
 transparent square (actually, be 'atop' of a transparent square).
 -}
 drawLabel :: Double -> Label -> Diagram B
-drawLabel size label = square size # opacity 0.0 <> labelText # fontSize (local size)
+drawLabel size label = square size # opacity 0.0 <>
+                       labelText # fontSize (local size)
   where
     labelText :: Diagram B
     labelText = text (show label)
@@ -74,7 +79,8 @@ drawNumberLine nl = connect "first" "last" scaleMarks
 
     appendNext acc (step, label) = acc ||| strutX step ||| scaleMark 1 label
     scaleMarks :: Diagram B
-    scaleMarks = foldl appendNext (strutX 1 # named "first") nl ||| strutX 3 # named "last"
+    scaleMarks = foldl appendNext (strutX 1 # named "first") nl
+                 ||| strutX 3 # named "last"
 
 
 testLine :: NumberLine
@@ -82,5 +88,5 @@ testLine = map (\n -> (1, IntegerLabel n)) numbers
   where
     numbers = [0..10]
 
-main :: IO ()
-main = mainWith . drawNumberLine $ testLine
+-- main :: IO ()
+-- main = mainWith . drawNumberLine $ testLine
