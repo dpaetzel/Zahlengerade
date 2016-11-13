@@ -8,6 +8,6 @@ let
 in
 pkgs.stdenv.mkDerivation {
   name = "Zahlengerade";
-  buildInputs = [ ghc ];
+  buildInputs = [ pkgs.haskellPackages.cabal-install ghc ];
   shellHook = "eval $(egrep ^export ${ghc}/bin/ghc)";
 }

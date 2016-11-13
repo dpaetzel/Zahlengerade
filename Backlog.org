@@ -1,3 +1,11 @@
+* NEXT cleanup/restructure code
+* NEXT add support for changing line width
+* NEXT add support for changing font/font size
+* NEXT add support for labels *above* marks
+* NEXT add support for properly “typesetting” rationals
+* NEXT remove ~instance Show Label~ (unneeded)
+* NEXT add doc for file format
+  - all numbers at which a stroke shall be drawn must be denoted in the input file
 * DONE add user-friendly data representation
   CLOSED: [2016-11-13 Sun 14:20]
   :LOGBOOK:
@@ -8,10 +16,6 @@
   :LOGBOOK:
   - State "DONE"       from "NEXT"       [2016-11-13 Sun 14:20]
   :END:
-* NEXT cleanup/restructure code
-* NEXT add support for labels *above* marks
-* NEXT add support for properly “typesetting” rationals
-* NEXT remove ~instance Show Label~ (unneeded)
 * DONE add documentation
   CLOSED: [2016-11-12 Sat 18:06]
   :LOGBOOK:
