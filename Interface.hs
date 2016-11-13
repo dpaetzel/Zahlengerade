@@ -13,6 +13,9 @@ import System.IO
 -- import Control.Exception
 
 
+import Diagrams.Backend.SVG.CmdLine (mainWith)
+
+
 import Zahlengerade
 
 
@@ -69,6 +72,4 @@ readInputFile path = do
 
 main :: IO ()
 main = do
-  args <- getArgs
-  result <- readInputFile $ head args
-  putStrLn $ show result
+  mainWith (fmap (drawNumberLine . steps) . readInputFile)

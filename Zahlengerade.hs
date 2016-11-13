@@ -32,7 +32,7 @@ instance Show Label where
   show (DoubleLabel d) = show d
   show (IntegerLabel i) = show i
   show (RationalLabel r) = show r
-  show (StringLabel s) = show s
+  show (StringLabel s) = s
 
 -- TODO proper implementation
 labelFromString :: String -> Label
