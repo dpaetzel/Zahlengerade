@@ -1,11 +1,16 @@
-* NEXT cleanup/restructure code
 * NEXT add support for changing line width
 * NEXT add support for changing font/font size
 * NEXT add support for labels *above* marks
 * NEXT add support for properly “typesetting” rationals
 * NEXT remove ~instance Show Label~ (unneeded)
-* NEXT add doc for file format
+* NEXT add README
+* NEXT add doc for file format to README
   - all numbers at which a stroke shall be drawn must be denoted in the input file
+* DONE cleanup/restructure code
+  CLOSED: [2016-11-14 Mon 09:03]
+  :LOGBOOK:
+  - State "DONE"       from "NEXT"       [2016-11-14 Mon 09:03]
+  :END:
 * DONE add user-friendly data representation
   CLOSED: [2016-11-13 Sun 14:20]
   :LOGBOOK:

@@ -12,7 +12,10 @@ Stability   : experimental
 Portability : POSIX
 -}
 -- TODO add more general documentation above
-module Zahlengerade where
+module Zahlengerade
+  ( steps
+  , drawNumberLine)
+where
 
 
 import Diagrams.Prelude
@@ -69,6 +72,21 @@ is to be drawn (containing corresponding label).
 type NumberLine = [(Step, Label)]
 type Step = Double
 
+-- TODO needs sorting?
+{-|
+Transforms a number line definition of absolute numbers with labels (e.g. as
+given by the user) to a number line definition with relative distances between
+the entries.
+-}
+steps :: [(Double, String)] -> NumberLine
+steps [] = []
+steps absolutes = steps' (fst . head $ absolutes) absolutes
+  where
+    steps' :: Double -> [(Double, String)] -> NumberLine
+    steps' lastNum [] = []
+    steps' lastNum ((num, label): rest) =
+      (num - lastNum, labelFromString label) : steps' num rest
+
 {-|
 Creates a diagram from a 'NumberLine'.
 -}
@@ -87,6 +105,3 @@ testLine :: NumberLine
 testLine = map (\n -> (1, IntegerLabel n)) numbers
   where
     numbers = [0..10]
-
--- main :: IO ()
--- main = mainWith . drawNumberLine $ testLine
