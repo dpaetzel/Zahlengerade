@@ -59,10 +59,12 @@ Creates a mark consisting of a little stroke and a label below it.
 scaleMark :: Double -> Label -> Diagram B
 scaleMark size label = stroke
                        ===
+                       strutY (size / 4)
+                       ===
                        drawLabel size label
   where
     stroke :: Diagram B
-    stroke = vrule size
+    stroke = vrule (size / 2) -- # lw veryThick
 
 
 {-|
@@ -91,7 +93,7 @@ steps absolutes = steps' (fst . head $ absolutes) absolutes
 Creates a diagram from a 'NumberLine'.
 -}
 drawNumberLine :: NumberLine -> Diagram B
-drawNumberLine nl = connect "first" "last" scaleMarks
+drawNumberLine nl = connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
   where
     length = sum . map fst $ nl
 

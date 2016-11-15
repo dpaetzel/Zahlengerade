@@ -1,4 +1,3 @@
-* NEXT proper default line width
 * NEXT add support for changing line width
 * NEXT add support for changing font/font size
 * NEXT add support for labels *above* marks
@@ -7,6 +6,11 @@
 * NEXT add README
 * NEXT add doc for file format to README
   - all numbers at which a stroke shall be drawn must be denoted in the input file
+* DONE proper default line width
+  CLOSED: [2016-11-15 Tue 09:04]
+  :LOGBOOK:
+  - State "DONE"       from "NEXT"       [2016-11-15 Tue 09:04]
+  :END:
 * DONE cleanup/restructure code
   CLOSED: [2016-11-14 Mon 09:03]
   :LOGBOOK:
