@@ -5,6 +5,8 @@ import Diagrams.Backend.SVG.CmdLine (mainWith)
 import Text.Regex.PCRE
 
 
+import Data.Maybe (fromMaybe)
+import Control.Applicative ((<$>))
 import System.IO (readFile)
 
 
@@ -12,8 +14,7 @@ import Zahlengerade
 
 
 main :: IO ()
-main = do
-  mainWith (fmap (drawNumberLine . steps) . readInputFile)
+main = mainWith (fmap (drawNumberLine . steps) . readInputFile)
 
 
 {-|
@@ -23,14 +24,12 @@ readInputFile :: FilePath -> IO [(Double, String)]
 readInputFile path = do
   contents <- readFile path
   let result = parseLines $ lines contents
-  putStrLn . show $ lines contents
+  -- print $ lines contents
   return result
 
   where
     parseLines :: [String] -> [(Double, String)]
-    parseLines (line: rest) =
-      maybe (errorAt line) id (parseLine line) : parseLines rest
-    parseLines [] = []
+    parseLines = map (\ line -> fromMaybe (errorAt line) (parseLine line))
     errorAt line = error $ "Error when parsing line: " ++ line
 
 
@@ -45,8 +44,7 @@ parseLine line = extractedTuple
     (_, _, _, matches) = line =~ pat :: (String, String, String, [String])
     extractedTuple :: Maybe (Double, String)
     extractedTuple = case matches of
-      -- (number : (label : _)) -> Just (number, label)
-      (number : (label : _)) -> fmap (flip (,) label) $ readDouble number
+      (number : (label : _)) -> flip (,) label <$> readDouble number
       _ -> Nothing
     readDouble string = case (reads string :: [(Double, String)]) of
       [(double, "")] -> Just double

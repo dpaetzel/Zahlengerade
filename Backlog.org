@@ -1,3 +1,4 @@
+* NEXT proper default line width
 * NEXT add support for changing line width
 * NEXT add support for changing font/font size
 * NEXT add support for labels *above* marks

@@ -57,9 +57,9 @@ drawLabel size label = square size # opacity 0.0 <>
 Creates a mark consisting of a little stroke and a label below it.
 -}
 scaleMark :: Double -> Label -> Diagram B
-scaleMark size label = (stroke
-                        ===
-                        drawLabel size label)
+scaleMark size label = stroke
+                       ===
+                       drawLabel size label
   where
     stroke :: Diagram B
     stroke = vrule size
