@@ -1,7 +1,9 @@
+* NEXT refactor
+* NEXT add support for automatic numbering/marking (two stepsize)
+* NEXT add support for properly “typesetting” rationals
 * NEXT add support for changing line width
 * NEXT add support for changing font/font size
 * NEXT add support for labels *above* marks
-* NEXT add support for properly “typesetting” rationals
 * NEXT remove ~instance Show Label~ (unneeded)
 * NEXT add README
 * NEXT add doc for file format to README

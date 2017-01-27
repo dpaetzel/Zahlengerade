@@ -14,7 +14,7 @@ import Zahlengerade
 
 
 main :: IO ()
-main = mainWith (fmap (drawNumberLine . steps) . readInputFile)
+main = mainWith (fmap (draw 2 . NumberLine . steps) . readInputFile)
 
 
 {-|

@@ -13,8 +13,8 @@ Portability : POSIX
 -}
 -- TODO add more general documentation above
 module Zahlengerade
-  ( steps
-  , drawNumberLine)
+  -- ( steps
+  -- , drawNumberLine)
 where
 
 
@@ -22,88 +22,89 @@ import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 
 
-import Data.Ratio
+class Drawable a where
+  draw :: Double -> a -> Diagram B
 
 
-data Label =
-  DoubleLabel Double
-  | IntegerLabel Integer
-  | RationalLabel Rational
-  | StringLabel String
+data Label = RatLabel Rational | StrLabel String
 
-instance Show Label where
-  show (DoubleLabel d) = show d
-  show (IntegerLabel i) = show i
-  show (RationalLabel r) = show r
-  show (StringLabel s) = s
+{-|
+Labels are drawable; in order for the label's text to “take up space”, it gets
+surrounded by a transparent square (actually, it is 'atop' of a transparent
+square).
+-}
+instance Drawable Label where
+  draw size (RatLabel _) = draw size $ StrLabel "n.n."
+  draw size (StrLabel l) = square size # opacity 0.0 <>
+                           text l # fontSize (local size)
 
--- TODO proper implementation
+-- TODO proper implementation using Read?
 labelFromString :: String -> Label
-labelFromString = StringLabel
+labelFromString = StrLabel
+
 
 {-|
-Creates a diagram from the supplied label using the given size.  In order for
-the label's text to “take up space”, it needs to be surrounded by e.g. a
-transparent square (actually, be 'atop' of a transparent square).
+A mark on a number line consisting of a little stroke and a label below it.
 -}
-drawLabel :: Double -> Label -> Diagram B
-drawLabel size label = square size # opacity 0.0 <>
-                       labelText # fontSize (local size)
-  where
-    labelText :: Diagram B
-    labelText = text (show label)
-
-{-|
-Creates a mark consisting of a little stroke and a label below it.
--}
-scaleMark :: Double -> Label -> Diagram B
-scaleMark size label = stroke
-                       ===
-                       strutY (size / 4)
-                       ===
-                       drawLabel size label
-  where
-    stroke :: Diagram B
-    stroke = vrule (size / 2) -- # lw veryThick
+data ScaleMark = ScaleMark Label
+instance Drawable ScaleMark where
+  draw size (ScaleMark label) = stroke
+                                ===
+                                strutY (size / 4)
+                                ===
+                                draw size label
+    where
+      stroke :: Diagram B
+      stroke = vrule (size / 2) -- # lw veryThick
 
 
 {-|
 A number line is made up from a set of steps after each of which a 'scaleMark'
 is to be drawn (containing corresponding label).
 -}
-type NumberLine = [(Step, Label)]
+newtype NumberLine = NumberLine [(Step, Label)]
 type Step = Double
 
--- TODO needs sorting?
+instance Drawable NumberLine where
+  draw size (NumberLine dat) = connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
+    where
+      appendNext acc (step, label) = acc ||| strutX step ||| draw 1 (ScaleMark label)
+      scaleMarks :: Diagram B
+      scaleMarks = foldl appendNext (strutX 1 # named "first") dat
+                   ||| strutX 3 # named "last"
+
+
 {-|
-Transforms a number line definition of absolute numbers with labels (e.g. as
-given by the user) to a number line definition with relative distances between
-the entries.
+Transforms a list of absolute numbers with labels (e.g. as given by the
+user) to a list of relative distances between the entries (not sorting them
+beforehand).
 -}
-steps :: [(Double, String)] -> NumberLine
+steps :: [(Double, String)] -> [(Step, Label)]
 steps [] = []
 steps absolutes = steps' (fst . head $ absolutes) absolutes
   where
-    steps' :: Double -> [(Double, String)] -> NumberLine
-    steps' lastNum [] = []
+    steps' :: Double -> [(Double, String)] ->  [(Step, Label)]
+    steps' _ [] = []
     steps' lastNum ((num, label): rest) =
       (num - lastNum, labelFromString label) : steps' num rest
+
 
 {-|
 Creates a diagram from a 'NumberLine'.
 -}
-drawNumberLine :: NumberLine -> Diagram B
-drawNumberLine nl = connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
-  where
-    length = sum . map fst $ nl
+-- drawNumberLine :: NumberLine -> Diagram B
+-- drawNumberLine nl = connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
+--   where
+--     length = sum . map fst $ nl
 
-    appendNext acc (step, label) = acc ||| strutX step ||| scaleMark 1 label
-    scaleMarks :: Diagram B
-    scaleMarks = foldl appendNext (strutX 1 # named "first") nl
-                 ||| strutX 3 # named "last"
+--     appendNext acc (step, label) = acc ||| strutX step ||| draw 1 (ScaleMark label)
+--     scaleMarks :: Diagram B
+--     scaleMarks = foldl appendNext (strutX 1 # named "first") nl
+--                  ||| strutX 3 # named "last"
 
+-- TODO remove drawnumberline, fix errors
 
-testLine :: NumberLine
-testLine = map (\n -> (1, IntegerLabel n)) numbers
-  where
-    numbers = [0..10]
+-- testLine :: NumberLine
+-- testLine = map (\n -> (1, IntegerLabel n)) numbers
+--   where
+--     numbers = [0..10]
