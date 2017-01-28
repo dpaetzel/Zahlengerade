@@ -1,4 +1,4 @@
-* NEXT refactor
+* NEXT rewrite
 * NEXT add support for automatic numbering/marking (two stepsize)
 * NEXT add support for properly “typesetting” rationals
 * NEXT add support for changing line width

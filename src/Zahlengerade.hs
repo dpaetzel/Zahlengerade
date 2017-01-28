@@ -26,85 +26,70 @@ class Drawable a where
   draw :: Double -> a -> Diagram B
 
 
-data Label = RatLabel Rational | StrLabel String
-
 {-|
-Labels are drawable; in order for the label's text to “take up space”, it gets
-surrounded by a transparent square (actually, it is 'atop' of a transparent
-square).
+A number line can be either free (made up only from a set of numbers at each of
+which a label is to be drawn) or scaled (containing a scale in addition to some
+annotations).
 -}
-instance Drawable Label where
-  draw size (RatLabel _) = draw size $ StrLabel "n.n."
-  draw size (StrLabel l) = square size # opacity 0.0 <>
-                           text l # fontSize (local size)
-
--- TODO proper implementation using Read?
-labelFromString :: String -> Label
-labelFromString = StrLabel
-
-
-{-|
-A mark on a number line consisting of a little stroke and a label below it.
--}
-data ScaleMark = ScaleMark Label
-instance Drawable ScaleMark where
-  draw size (ScaleMark label) = stroke
-                                ===
-                                strutY (size / 4)
-                                ===
-                                draw size label
-    where
-      stroke :: Diagram B
-      stroke = vrule (size / 2) -- # lw veryThick
-
-
-{-|
-A number line is made up from a set of steps after each of which a 'scaleMark'
-is to be drawn (containing corresponding label).
--}
-newtype NumberLine = NumberLine [(Step, Label)]
-type Step = Double
+data NumberLine = Free [(Double, String)]
+  | Scaled
+  { start :: Double
+  , end :: Double
+  , step :: Double
+  , miniStep :: Double
+  , annotations :: [(Double, String)]
+  }
 
 instance Drawable NumberLine where
-  draw size (NumberLine dat) = connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
+  draw size (Free annotations) = connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
     where
-      appendNext acc (step, label) = acc ||| strutX step ||| draw 1 (ScaleMark label)
+      appendNext :: Diagram B -> (Double, (Double, String)) -> Diagram B
+      appendNext acc (step, (value, label)) = acc ||| strutX step ||| draw 1 (Annotation label)
       scaleMarks :: Diagram B
-      scaleMarks = foldl appendNext (strutX 1 # named "first") dat
+      scaleMarks = foldl appendNext (strutX 1 # named "first") (steps fst annotations)
                    ||| strutX 3 # named "last"
+  draw size scaled = draw size . Free . annotations $ scaled
 
 
 {-|
-Transforms a list of absolute numbers with labels (e.g. as given by the
-user) to a list of relative distances between the entries (not sorting them
-beforehand).
+Transforms a list to a list of relative distances between its entries by using
+the supplied function to transform each of them into a numerical representation.
 -}
-steps :: [(Double, String)] -> [(Step, Label)]
-steps [] = []
-steps absolutes = steps' (fst . head $ absolutes) absolutes
-  where
-    steps' :: Double -> [(Double, String)] ->  [(Step, Label)]
-    steps' _ [] = []
-    steps' lastNum ((num, label): rest) =
-      (num - lastNum, labelFromString label) : steps' num rest
+steps :: Num a => (b -> a) -> [b] -> [(a, b)]
+steps _ [] = []
+steps f absolutes =
+  let
+    steps' _        []               = []
+    steps' previous (current : rest) = (f current - previous, current) : steps' (f current) rest
+  in
+    steps' 0 absolutes
 
 
-{-|
-Creates a diagram from a 'NumberLine'.
--}
--- drawNumberLine :: NumberLine -> Diagram B
--- drawNumberLine nl = connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
---   where
---     length = sum . map fst $ nl
+data ScaleMark = MiniStepMark
+               | StepMark String
+               | Annotation String
 
---     appendNext acc (step, label) = acc ||| strutX step ||| draw 1 (ScaleMark label)
---     scaleMarks :: Diagram B
---     scaleMarks = foldl appendNext (strutX 1 # named "first") nl
---                  ||| strutX 3 # named "last"
-
--- TODO remove drawnumberline, fix errors
-
--- testLine :: NumberLine
--- testLine = map (\n -> (1, IntegerLabel n)) numbers
---   where
---     numbers = [0..10]
+instance Drawable ScaleMark where
+  draw size mark = case mark of
+    MiniStepMark     -> vrule miniStepStrokeSize
+    StepMark label   -> (vrule stepStrokeSize
+                        -- ===
+                        -- strutY (size / 4)
+                        ===
+                        drawLabel label)
+                        # alignY (- (1 - (1 / (size + size))))
+    Annotation label -> (drawLabel label
+                        ===
+                        vrule annotationStrokeSize
+                        )
+                        # alignY (- (1 - (1 / (annotationStrokeSize + size) * miniStepStrokeSize)))
+                        -- # alignY (-0.875) -- for annotationStrokeSize = stepStrokeSize * 3 and
+                                           -- miniStepStrokeSize = size / 2
+                        # showOrigin
+    where
+      drawLabel :: String -> Diagram B
+      drawLabel l = square size # opacity 0.0 <>
+                    text l # fontSize (local size)
+      stepStrokeSize = size
+      miniStepStrokeSize = size / 2
+      annotationStrokeSize = stepStrokeSize * 3
