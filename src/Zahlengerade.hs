@@ -4,24 +4,27 @@
 
 {-|
 Module      : Zahlengerade
-Description : Simple library for rendering number lines using the
+Description : Very simple library for rendering number lines using the
               <http://projects.haskell.org/diagrams/ diagrams> library.
-Copyright   : (c) David Pätzel, 2016
+Copyright   : (c) David Pätzel
 License     : GPL-3
 Maintainer  : david.a.paetzel@gmail.com
 Stability   : experimental
 Portability : POSIX
 -}
--- TODO add more general documentation above
+
+
 module Zahlengerade
-  -- ( steps
-  -- , drawNumberLine)
+  ( defaultScaled
+  , draw
+  , NumberLine (Free, Scaled)
+  )
 where
 
 
 import Data.List (sortOn)
-import Control.Arrow (first, second)
-import GHC.Generics -- for YAML parseability
+import Control.Arrow (second)
+import GHC.Generics -- for parseability using Aeson/YAML
 
 
 import Diagrams.Prelude hiding (start, end)
@@ -42,15 +45,16 @@ Rationals must be used in order to properly test for list element-ness
 -}
 data NumberLine = Free { annotations :: [(Rational, String)] }
   | Scaled
-  { start       :: Rational
-  , end         :: Rational
-  , step        :: Rational
-  , mediumStep  :: Rational
-  , miniStep    :: Rational
-  , annotations :: [(Rational, String)]
-  }
-  deriving (Generic) -- for YAML parseability
+    { start       :: Rational
+    , end         :: Rational
+    , step        :: Rational
+    , mediumStep  :: Rational
+    , miniStep    :: Rational
+    , annotations :: [(Rational, String)]
+    }
+    deriving (Generic) -- for YAML parseability
 
+defaultScaled :: NumberLine
 defaultScaled = Scaled
   { start = -5.0
   , end = 5.0
@@ -62,26 +66,40 @@ defaultScaled = Scaled
 
 instance Drawable NumberLine where
   draw size (Free annotations) =
-    connect' (with & headLength .~ normal) "first" "last" scaleMarks -- # lw thick
+    drawArrow scaleMarks -- # lw thick
+    ===
+    strutY 1
     where
       scaleMarks :: Diagram B
-      scaleMarks = strutX 1 # named "first" |||
-                   position (map (\(x, y) -> (p2 (fromRational x, 0), draw 1 $ Annotation y)) annotations) |||
-                   strutX 1 # named "last"
-                   ===
-                   strutY 1
+      scaleMarks = drawMarks size . map (second Annotation) $ annotations
   draw size (Scaled start end step mediumStep miniStep annotations) =
-    connect' (with & headLength .~ normal) "first" "last" scaleMarks -- # lw thick
+    drawArrow scaleMarks -- # lw thick
     where
       scaleMarks :: Diagram B
-      scaleMarks = strutX 1 # named "first" |||
-                   position (map (\(x, y) -> (p2 (fromRational x, 0), draw 1 y)) allMarks) |||
-                   strutX 1 # named "last"
+      scaleMarks = drawMarks size allMarks
       allMarks :: [(Rational, ScaleMark)]
-      allMarks = sortOn fst $ marks ++ mediumMarks ++ miniMarks ++ map (second Annotation) annotations
-      marks = map (\x -> (x, StepMark . show $ fromRational x)) $ enumFromThenTo start (start + step) end
-      mediumMarks = map (\x -> (x, MediumStepMark)) . filter (`notElem` map fst marks) $ enumFromThenTo start (start + mediumStep) end
-      miniMarks = map (\x -> (x, MiniStepMark)) . filter (`notElem` map fst (marks ++ mediumMarks)) $ enumFromThenTo start (start + miniStep) end
+      allMarks = marks ++ mediumMarks ++ miniMarks ++ map (second Annotation) annotations
+      marks = toMarks (StepMark . show . fromRational) $ enumFromThenTo start (start + step) end
+      mediumMarks = toMarks (const MediumStepMark) . fromThenToSkip (map fst marks) start (start + mediumStep) $ end
+      miniMarks = toMarks (const MiniStepMark) . fromThenToSkip (map fst (marks ++ mediumMarks)) start (start + miniStep) $ end
+
+
+drawArrow :: Diagram B -> Diagram B
+drawArrow marks =
+  connect' (with & headLength .~ normal) "first" "last" $
+  strutX 1 # named "first" ||| marks ||| strutX 1 # named "last"
+
+
+drawMarks :: Double -> [(Rational, ScaleMark)] -> Diagram B
+drawMarks size marks = position (map (\(x, y) -> (p2 (fromRational x, 0), draw size y)) marks)
+
+
+toMarks :: (Rational -> ScaleMark) -> [Rational] -> [(Rational, ScaleMark)]
+toMarks f = map (\x -> (x, f x))
+
+
+fromThenToSkip :: [Rational] -> Rational -> Rational -> Rational -> [Rational]
+fromThenToSkip skip from thenn = filter (`notElem` skip) . enumFromThenTo from thenn
 
 
 data ScaleMark = MiniStepMark
@@ -106,8 +124,8 @@ instance Drawable ScaleMark where
                         # lw thin
                         # alignB
     where
-      labelSize = size / 2
-      stepStrokeSize = size / 3
+      labelSize = size / 4
+      stepStrokeSize = labelSize / 2
       mediumStepStrokeSize = miniStepStrokeSize * 2
       miniStepStrokeSize = stepStrokeSize / 4
       annotationStrokeSize = stepStrokeSize * 2

@@ -2,9 +2,8 @@ module Main where
 
 
 import Diagrams.Backend.SVG.CmdLine (mainWith)
--- for processing the input file (YAML)
-import Data.Aeson
-import qualified Data.Yaml as Y
+import Data.Aeson -- for processing the input file (YAML)
+import qualified Data.Yaml as Y -- for processing the input file (YAML)
 
 
 import Data.Maybe (fromMaybe)
@@ -20,21 +19,11 @@ instance ToJSON NumberLine
 
 
 main :: IO ()
--- main = mainWith (fmap (draw 2 . Free) . readInputFile)
--- main = mainWith (draw 1 Scaled
---                  { start = -3.0
---                  , end = 6.0
---                  , step = 1.0
---                  , miniStep = 0.1
---                  , mediumStep = 0.5
---                  , annotations = [(3.1415, "π")]
---                  })
--- main = print $ Y.encode defaultScaled
 main = mainWith (fmap (draw 2) . readInputFile)
 
 
 {-|
-Parses an actual input file (aborting if any line is malformed).
+Parses the given YAML file.
 -}
 readInputFile :: FilePath -> IO NumberLine
 readInputFile path = do

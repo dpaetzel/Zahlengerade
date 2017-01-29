@@ -1,6 +1,6 @@
 # whether to add a scale (Scaled; then start, end, step, miniStep, mediumStep
 # and annotations must be set) or not (Free, only annotations must be set)
-tag: Free
+tag: Scaled
 # the first numbered mark on the number line
 start:
   numerator: -5
