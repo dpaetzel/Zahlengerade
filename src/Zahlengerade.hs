@@ -40,29 +40,29 @@ Rationals must be used in order to properly test for list element-ness
 -}
 data NumberLine = Free [(Rational, String)]
   | Scaled
-  { start :: Rational
-  , end :: Rational
-  , step :: Rational
-  , mediumStep
-  , miniStep :: Rational
+  { start       :: Rational
+  , end         :: Rational
+  , step        :: Rational
+  , mediumStep  :: Rational
+  , miniStep    :: Rational
   , annotations :: [(Rational, String)]
   }
 
 instance Drawable NumberLine where
   draw size (Free annotations) =
-    connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
+    connect' (with & headLength .~ normal) "first" "last" scaleMarks -- # lw thick
     where
       scaleMarks :: Diagram B
       scaleMarks = strutX 1 # named "first" |||
                    position (map (\(x, y) -> (p2 (fromRational x, 0), draw 1 $ Annotation y)) annotations) |||
-                   strutX 3 # named "last"
+                   strutX 1 # named "last"
   draw size (Scaled start end step mediumStep miniStep annotations) =
-    connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw thick
+    connect' (with & headLength .~ normal) "first" "last" scaleMarks -- # lw thick
     where
       scaleMarks :: Diagram B
       scaleMarks = strutX 1 # named "first" |||
                    position (map (\(x, y) -> (p2 (fromRational x, 0), draw 1 y)) allMarks) |||
-                   strutX 3 # named "last"
+                   strutX 1 # named "last"
       allMarks :: [(Rational, ScaleMark)]
       allMarks = sortOn fst $ marks ++ mediumMarks ++ miniMarks ++ map (second Annotation) annotations
       marks = map (\x -> (x, StepMark . show $ fromRational x)) $ enumFromThenTo start (start + step) end
@@ -93,32 +93,24 @@ instance Drawable ScaleMark where
   draw size mark = case mark of
     MiniStepMark     -> vrule miniStepStrokeSize
                         # lw thin
-                        -- # showEnvelope
     MediumStepMark   -> vrule mediumStepStrokeSize
                         # lw thin
     StepMark label   -> (vrule stepStrokeSize
-                        -- ===
-                        -- strutY (size / 4)
                         ===
                         drawLabel label)
                         # lw thin
-                        # alignY (1 - (1 / (size + size)))
-                        -- # showEnvelope
+                        alignY (1 - (stepStrokeSize / (stepStrokeSize + labelSize)))
     Annotation label -> (drawLabel label
                         ===
-                        vrule annotationStrokeSize
-                        )
+                        vrule annotationStrokeSize)
                         # lw thin
-                        # alignY (- (1 - (1 / (annotationStrokeSize + size) * miniStepStrokeSize)))
-                        -- # alignY (-0.875) -- for annotationStrokeSize = stepStrokeSize * 3 and
-                                           -- miniStepStrokeSize = size / 2
-                        -- # showOrigin
-                        -- # showEnvelope
+                        # alignB
     where
+      labelSize = size / 2
+      stepStrokeSize = size / 3
+      mediumStepStrokeSize = miniStepStrokeSize * 2
+      miniStepStrokeSize = stepStrokeSize / 4
+      annotationStrokeSize = stepStrokeSize * 2
       drawLabel :: String -> Diagram B
-      drawLabel l = square size # opacity 0.0 <>
-                    text l # fontSize (local (size / 2))
-      stepStrokeSize = size
-      miniStepStrokeSize = size / 4
-      mediumStepStrokeSize = size / 2
-      annotationStrokeSize = stepStrokeSize * 3
+      drawLabel l = square labelSize # opacity 0.0 <>
+                    text l # fontSize (local (labelSize / 2))
