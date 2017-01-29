@@ -1,6 +1,6 @@
-* NEXT rewrite
 * NEXT add support for automatic numbering/marking (two stepsize)
 * NEXT add support for properly “typesetting” rationals
+  - add "rational mode" to scaled numberline
 * NEXT add support for changing line width
 * NEXT add support for changing font/font size
 * NEXT add support for labels *above* marks
@@ -8,6 +8,11 @@
 * NEXT add README
 * NEXT add doc for file format to README
   - all numbers at which a stroke shall be drawn must be denoted in the input file
+* DONE rewrite
+  CLOSED: [2017-01-29 Sun 09:44]
+  :LOGBOOK:
+  - State "DONE"       from "NEXT"       [2017-01-29 Sun 09:44]
+  :END:
 * DONE proper default line width
   CLOSED: [2016-11-15 Tue 09:04]
   :LOGBOOK:

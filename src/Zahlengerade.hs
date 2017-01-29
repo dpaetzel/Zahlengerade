@@ -18,6 +18,10 @@ module Zahlengerade
 where
 
 
+import Data.List (sortOn)
+import Control.Arrow (first, second)
+
+
 import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 
@@ -30,25 +34,39 @@ class Drawable a where
 A number line can be either free (made up only from a set of numbers at each of
 which a label is to be drawn) or scaled (containing a scale in addition to some
 annotations).
+
+Rationals must be used in order to properly test for list element-ness
+('Double's are unusable because of their natural deviation).
 -}
-data NumberLine = Free [(Double, String)]
+data NumberLine = Free [(Rational, String)]
   | Scaled
-  { start :: Double
-  , end :: Double
-  , step :: Double
-  , miniStep :: Double
-  , annotations :: [(Double, String)]
+  { start :: Rational
+  , end :: Rational
+  , step :: Rational
+  , miniStep :: Rational
+  , annotations :: [(Rational, String)]
   }
 
 instance Drawable NumberLine where
-  draw size (Free annotations) = connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
+  draw size (Free annotations) =
+    connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw veryThick
     where
-      appendNext :: Diagram B -> (Double, (Double, String)) -> Diagram B
-      appendNext acc (step, (value, label)) = acc ||| strutX step ||| draw 1 (Annotation label)
       scaleMarks :: Diagram B
-      scaleMarks = foldl appendNext (strutX 1 # named "first") (steps fst annotations)
-                   ||| strutX 3 # named "last"
-  draw size scaled = draw size . Free . annotations $ scaled
+      scaleMarks = strutX 1 # named "first" |||
+                   position (map (\(x, y) -> (p2 (fromRational x, 0), draw 1 $ Annotation y)) annotations) |||
+                   strutX 3 # named "last"
+  draw size (Scaled start end step miniStep annotations) =
+    connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw thick
+    where
+      scaleMarks :: Diagram B
+      scaleMarks = strutX 1 # named "first" |||
+                   position (map (\(x, y) -> (p2 (fromRational x, 0), draw 1 y)) allMarks) |||
+                   strutX 3 # named "last"
+      allMarks :: [(Rational, ScaleMark)]
+      allMarks = sortOn fst $ marks ++ miniMarks ++ map (second Annotation) annotations
+      marks = map (\x -> (x, StepMark . show $ fromRational x)) $ enumFromThenTo start (start + step) end
+  -- NEXT that filter expression then add 0.5 slightly larger (or all others smaller)
+      miniMarks = map (\x -> (x, MiniStepMark)) . filter (`notElem` map fst marks) $ enumFromThenTo start (start + miniStep) end
 
 
 {-|
@@ -72,24 +90,30 @@ data ScaleMark = MiniStepMark
 instance Drawable ScaleMark where
   draw size mark = case mark of
     MiniStepMark     -> vrule miniStepStrokeSize
+                        # lw thin
+                        -- # showEnvelope
     StepMark label   -> (vrule stepStrokeSize
                         -- ===
                         -- strutY (size / 4)
                         ===
                         drawLabel label)
-                        # alignY (- (1 - (1 / (size + size))))
+                        # lw thin
+                        # alignY (1 - (1 / (size + size)))
+                        -- # showEnvelope
     Annotation label -> (drawLabel label
                         ===
                         vrule annotationStrokeSize
                         )
+                        # lw thin
                         # alignY (- (1 - (1 / (annotationStrokeSize + size) * miniStepStrokeSize)))
                         -- # alignY (-0.875) -- for annotationStrokeSize = stepStrokeSize * 3 and
                                            -- miniStepStrokeSize = size / 2
-                        # showOrigin
+                        -- # showOrigin
+                        -- # showEnvelope
     where
       drawLabel :: String -> Diagram B
       drawLabel l = square size # opacity 0.0 <>
-                    text l # fontSize (local size)
+                    text l # fontSize (local (size / 2))
       stepStrokeSize = size
       miniStepStrokeSize = size / 2
       annotationStrokeSize = stepStrokeSize * 3
