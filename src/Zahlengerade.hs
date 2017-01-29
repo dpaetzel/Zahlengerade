@@ -43,6 +43,7 @@ data NumberLine = Free [(Rational, String)]
   { start :: Rational
   , end :: Rational
   , step :: Rational
+  , mediumStep
   , miniStep :: Rational
   , annotations :: [(Rational, String)]
   }
@@ -55,7 +56,7 @@ instance Drawable NumberLine where
       scaleMarks = strutX 1 # named "first" |||
                    position (map (\(x, y) -> (p2 (fromRational x, 0), draw 1 $ Annotation y)) annotations) |||
                    strutX 3 # named "last"
-  draw size (Scaled start end step miniStep annotations) =
+  draw size (Scaled start end step mediumStep miniStep annotations) =
     connect' (with & headLength .~ veryLarge) "first" "last" scaleMarks # lw thick
     where
       scaleMarks :: Diagram B
@@ -63,10 +64,10 @@ instance Drawable NumberLine where
                    position (map (\(x, y) -> (p2 (fromRational x, 0), draw 1 y)) allMarks) |||
                    strutX 3 # named "last"
       allMarks :: [(Rational, ScaleMark)]
-      allMarks = sortOn fst $ marks ++ miniMarks ++ map (second Annotation) annotations
+      allMarks = sortOn fst $ marks ++ mediumMarks ++ miniMarks ++ map (second Annotation) annotations
       marks = map (\x -> (x, StepMark . show $ fromRational x)) $ enumFromThenTo start (start + step) end
-  -- NEXT that filter expression then add 0.5 slightly larger (or all others smaller)
-      miniMarks = map (\x -> (x, MiniStepMark)) . filter (`notElem` map fst marks) $ enumFromThenTo start (start + miniStep) end
+      mediumMarks = map (\x -> (x, MediumStepMark)) . filter (`notElem` map fst marks) $ enumFromThenTo start (start + mediumStep) end
+      miniMarks = map (\x -> (x, MiniStepMark)) . filter (`notElem` map fst (marks ++ mediumMarks)) $ enumFromThenTo start (start + miniStep) end
 
 
 {-|
@@ -84,6 +85,7 @@ steps f absolutes =
 
 
 data ScaleMark = MiniStepMark
+               | MediumStepMark
                | StepMark String
                | Annotation String
 
@@ -92,6 +94,8 @@ instance Drawable ScaleMark where
     MiniStepMark     -> vrule miniStepStrokeSize
                         # lw thin
                         -- # showEnvelope
+    MediumStepMark   -> vrule mediumStepStrokeSize
+                        # lw thin
     StepMark label   -> (vrule stepStrokeSize
                         -- ===
                         -- strutY (size / 4)
@@ -115,5 +119,6 @@ instance Drawable ScaleMark where
       drawLabel l = square size # opacity 0.0 <>
                     text l # fontSize (local (size / 2))
       stepStrokeSize = size
-      miniStepStrokeSize = size / 2
+      miniStepStrokeSize = size / 4
+      mediumStepStrokeSize = size / 2
       annotationStrokeSize = stepStrokeSize * 3

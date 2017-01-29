@@ -19,7 +19,8 @@ main = mainWith (draw 1 Scaled
                  { start = -3.0
                  , end = 6.0
                  , step = 1.0
-                 , miniStep = 0.2
+                 , miniStep = 0.1
+                 , mediumStep = 0.5
                  , annotations = [(3.1415, "π")]
                  })
 
