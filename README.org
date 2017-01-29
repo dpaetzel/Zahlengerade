@@ -1,8 +1,5 @@
 * Zahlengerade
-  … is a tiny Haskell library and application that generates very simple number
-  lines.
-
-  [[file:2017-01-29%20Stand.png][example output (converted to PNG, usually an SVG)]]
+  … is a tiny Haskell library and application that generates [[file:2017-01-29%20Stand.png][very simple number lines]].
 
 ** Usage
    #+BEGIN_SRC sh
