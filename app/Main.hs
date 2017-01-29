@@ -2,7 +2,9 @@ module Main where
 
 
 import Diagrams.Backend.SVG.CmdLine (mainWith)
-import Text.Regex.PCRE
+-- for processing the input file (YAML)
+import Data.Aeson
+import qualified Data.Yaml as Y
 
 
 import Data.Maybe (fromMaybe)
@@ -13,47 +15,30 @@ import System.IO (readFile)
 import Zahlengerade
 
 
+instance FromJSON NumberLine
+instance ToJSON NumberLine
+
+
 main :: IO ()
 -- main = mainWith (fmap (draw 2 . Free) . readInputFile)
-main = mainWith (draw 1 Scaled
-                 { start = -3.0
-                 , end = 6.0
-                 , step = 1.0
-                 , miniStep = 0.1
-                 , mediumStep = 0.5
-                 , annotations = [(3.1415, "π")]
-                 })
+-- main = mainWith (draw 1 Scaled
+--                  { start = -3.0
+--                  , end = 6.0
+--                  , step = 1.0
+--                  , miniStep = 0.1
+--                  , mediumStep = 0.5
+--                  , annotations = [(3.1415, "π")]
+--                  })
+-- main = print $ Y.encode defaultScaled
+main = mainWith (fmap (draw 2) . readInputFile)
 
 
 {-|
 Parses an actual input file (aborting if any line is malformed).
 -}
-readInputFile :: FilePath -> IO [(Double, String)]
+readInputFile :: FilePath -> IO NumberLine
 readInputFile path = do
-  contents <- readFile path
-  let result = parseLines $ lines contents
-  -- print $ lines contents
-  return result
-
-  where
-    parseLines :: [String] -> [(Double, String)]
-    parseLines = map (\ line -> fromMaybe (errorAt line) (parseLine line))
-    errorAt line = error $ "Error when parsing line: " ++ line
-
-
-{-|
-Tries to parse a line from the input file to the corresponding tuple.
--}
-parseLine :: String -> Maybe (Double, String)
-parseLine line = extractedTuple
-  where
-    -- TODO leave out the comma for “default label”: "^( *[0-9.]+ *)($|, *([^#]*)#?.*$)"
-    pat = "^( *-? *[0-9.]+ *), *([^#]*)#?.*$"
-    (_, _, _, matches) = line =~ pat :: (String, String, String, [String])
-    extractedTuple :: Maybe (Double, String)
-    extractedTuple = case matches of
-      (number : (label : _)) -> flip (,) label <$> readDouble number
-      _ -> Nothing
-    readDouble string = case (reads string :: [(Double, String)]) of
-      [(double, "")] -> Just double
-      _ -> Nothing
+  parsed <- Y.decodeFileEither path
+  case parsed of
+    Left err -> error . Y.prettyPrintParseException $ err
+    Right nl -> return nl

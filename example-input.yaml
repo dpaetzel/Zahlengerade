@@ -1,0 +1,34 @@
+# whether to add a scale (Scaled; then start, end, step, miniStep, mediumStep
+# and annotations must be set) or not (Free, only annotations must be set)
+tag: Free
+# the first numbered mark on the number line
+start:
+  numerator: -5
+  denominator: 1
+# the last numbered mark on the number line
+end:
+  numerator: 4
+  denominator: 1
+# stepsize for the following numbered scale marks
+step:
+  numerator: 1
+  denominator: 1
+# intermediary stepsize for the following scale marks (not numbered)
+miniStep:
+  numerator: 1
+  denominator: 10
+# another stepsize to use (e.g. to add a slightly larger mark every 0.5 steps)
+mediumStep:
+  numerator: 1
+  denominator: 2
+# numbers to label
+annotations:
+  - - numerator: -11
+      denominator: 10
+    - "A"
+  - - numerator: 314
+      denominator: 100
+    - "π"
+  - - numerator: 271
+      denominator: 100
+    - "e"

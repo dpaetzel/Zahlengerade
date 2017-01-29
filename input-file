@@ -1,8 +1,0 @@
-STEP: 1    # stepsize for the following scale marks
--5, -5     # standard
--3,        # no label, but a mark
-2.71, e
-
-# not yet supported
-0.333, 1/3 # == 0.333, ⅓ (properly aligned)
--4         # == -4, -4

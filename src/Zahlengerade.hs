@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
 
@@ -20,9 +21,10 @@ where
 
 import Data.List (sortOn)
 import Control.Arrow (first, second)
+import GHC.Generics -- for YAML parseability
 
 
-import Diagrams.Prelude
+import Diagrams.Prelude hiding (start, end)
 import Diagrams.Backend.SVG.CmdLine
 
 
@@ -38,7 +40,7 @@ annotations).
 Rationals must be used in order to properly test for list element-ness
 ('Double's are unusable because of their natural deviation).
 -}
-data NumberLine = Free [(Rational, String)]
+data NumberLine = Free { annotations :: [(Rational, String)] }
   | Scaled
   { start       :: Rational
   , end         :: Rational
@@ -46,6 +48,16 @@ data NumberLine = Free [(Rational, String)]
   , mediumStep  :: Rational
   , miniStep    :: Rational
   , annotations :: [(Rational, String)]
+  }
+  deriving (Generic) -- for YAML parseability
+
+defaultScaled = Scaled
+  { start = -5.0
+  , end = 5.0
+  , step = 1.0
+  , mediumStep = 0.5
+  , miniStep = 0.1
+  , annotations = [(3.14, "pi")]
   }
 
 instance Drawable NumberLine where
@@ -56,6 +68,8 @@ instance Drawable NumberLine where
       scaleMarks = strutX 1 # named "first" |||
                    position (map (\(x, y) -> (p2 (fromRational x, 0), draw 1 $ Annotation y)) annotations) |||
                    strutX 1 # named "last"
+                   ===
+                   strutY 1
   draw size (Scaled start end step mediumStep miniStep annotations) =
     connect' (with & headLength .~ normal) "first" "last" scaleMarks -- # lw thick
     where
@@ -68,20 +82,6 @@ instance Drawable NumberLine where
       marks = map (\x -> (x, StepMark . show $ fromRational x)) $ enumFromThenTo start (start + step) end
       mediumMarks = map (\x -> (x, MediumStepMark)) . filter (`notElem` map fst marks) $ enumFromThenTo start (start + mediumStep) end
       miniMarks = map (\x -> (x, MiniStepMark)) . filter (`notElem` map fst (marks ++ mediumMarks)) $ enumFromThenTo start (start + miniStep) end
-
-
-{-|
-Transforms a list to a list of relative distances between its entries by using
-the supplied function to transform each of them into a numerical representation.
--}
-steps :: Num a => (b -> a) -> [b] -> [(a, b)]
-steps _ [] = []
-steps f absolutes =
-  let
-    steps' _        []               = []
-    steps' previous (current : rest) = (f current - previous, current) : steps' (f current) rest
-  in
-    steps' 0 absolutes
 
 
 data ScaleMark = MiniStepMark

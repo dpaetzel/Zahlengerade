@@ -26,8 +26,10 @@ executable zahlengerade-exe
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
+                     , aeson
                      , diagrams-svg
-                     , regex-pcre
+                     -- , regex-pcre
+                     , yaml
                      , zahlengerade
   default-language:    Haskell2010
 
