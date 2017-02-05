@@ -1,27 +1,32 @@
 * Zahlengerade
   … is a tiny Haskell library and application that generates [[file:2017-02-05%20Stand.svg][very simple number lines]].
 ** Usage
-   #+BEGIN_SRC sh
-   $ zahlengerade -h
-   zahlengerade-exe [-?|--help] [-w|--width WIDTH] [-h|--height HEIGHT]
-                    [-o|--output OUTPUT] [-l|--loop] [-s|--src ARG]
-                    [-i|--interval INTERVAL] [-p|--pretty]
-   #+END_SRC
+*** General
+    #+BEGIN_SRC sh
+    $ zahlengerade-exe --help
+    zahlengerade-exe [-?|--help] [-w|--width WIDTH] [-h|--height HEIGHT]
+                     [-o|--output OUTPUT] [-l|--loop] [-s|--src ARG]
+                     [-i|--interval INTERVAL] [-p|--pretty]
+    #+END_SRC
 
-   The only additional command line argument it takes is the YAML file
-   containing the definition of the number line to generate (see [[file:example-input.yaml][the example
-   input file]]).
+    The only additional command line argument it takes is the YAML file
+    containing the definition of the number line to generate (see [[file:example-input.yaml][the example
+    input file]]).
+
+    For further information check out the code and the [[http://projects.haskell.org/diagrams/doc/cmdline.html][command-line interface
+    of the diagrams library]].
+*** Windows
+    Yep, it should compile on Windows, too.  Use [[https://docs.haskellstack.org/en/stable/README/][stack]].
+
+    The supplied [[file:Zahlengerade.bat][Zahlengerade.bat]] might be useful (put the binary in the same
+    directory and call it zahlengerade.exe).  There is also [[https://www.dropbox.com/s/pgpprd9727rr8io/zahlengerade-2.1.zip?dl=0][this]] 64-bit binary.
+
+    The usual workflow for windows should be to create an input file (see
+    [[file:example-input.yaml][example]]) and drag-and-dropping it on the Zahlengerade.bat file.
+** Dependencies
+   - Use [[https://docs.haskellstack.org/en/stable/README/][stack]].  It really helps.
+   - Alternatively, check out [[file:stack.yaml][stack.yaml]] and [[file:zahlengerade.cabal][zahlengerade.cabal]].
 ** Backlog/TODOs
-*** DONE get it working under windows
-    CLOSED: [2017-02-05 Sun 17:25]
-    :LOGBOOK:
-    - State "DONE"       from "NEXT"       [2017-02-05 Sun 17:25]
-    :END:
-*** DONE use a font without serifs
-    CLOSED: [2017-02-05 Sun 15:34]
-    :LOGBOOK:
-    - State "DONE"       from "NEXT"       [2017-02-05 Sun 15:34]
-    :END:
 *** NEXT add support for properly “typesetting” rationals
     - add "rational mode" to scaled numberline
 *** NEXT add support for changing line width
