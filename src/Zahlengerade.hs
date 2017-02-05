@@ -25,6 +25,7 @@ where
 import Data.List (sortOn)
 import Control.Arrow (second)
 import GHC.Generics -- for parseability using Aeson/YAML
+import Text.Regex
 
 
 import Diagrams.Prelude hiding (start, end)
@@ -79,7 +80,7 @@ instance Drawable NumberLine where
       scaleMarks = drawMarks size allMarks
       allMarks :: [(Rational, ScaleMark)]
       allMarks = marks ++ mediumMarks ++ miniMarks ++ map (second Annotation) annotations
-      marks = toMarks (StepMark . show . fromRational) $ enumFromThenTo start (start + step) end
+      marks = toMarks (StepMark . showGerman . fromRational) $ enumFromThenTo start (start + step) end
       mediumMarks = toMarks (const MediumStepMark) . fromThenToSkip (map fst marks) start (start + mediumStep) $ end
       miniMarks = toMarks (const MiniStepMark) . fromThenToSkip (map fst (marks ++ mediumMarks)) start (start + miniStep) $ end
 
@@ -132,3 +133,7 @@ instance Drawable ScaleMark where
       drawLabel :: String -> Diagram B
       drawLabel l = square labelSize # opacity 0.0 <>
                     text l # fontSize (local (labelSize / 2))
+
+
+showGerman :: Double -> String
+showGerman double = subRegex (mkRegex "\\.") (show double) ","

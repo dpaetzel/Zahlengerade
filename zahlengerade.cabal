@@ -19,6 +19,7 @@ library
   build-depends:       base >= 4.7 && < 5
                      , diagrams-lib
                      , diagrams-svg
+                     , regex-compat
   default-language:    Haskell2010
 
 executable zahlengerade-exe
@@ -28,7 +29,6 @@ executable zahlengerade-exe
   build-depends:       base
                      , aeson
                      , diagrams-svg
-                     -- , regex-pcre
                      , yaml
                      , zahlengerade
   default-language:    Haskell2010

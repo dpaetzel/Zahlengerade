@@ -1,6 +1,5 @@
 * Zahlengerade
   … is a tiny Haskell library and application that generates [[file:2017-01-29%20Stand.png][very simple number lines]].
-
 ** Usage
    #+BEGIN_SRC sh
    $ zahlengerade -h
@@ -13,6 +12,7 @@
    containing the definition of the number line to generate (see [[file:example-input.yaml][the example
    input file]]).
 ** Backlog/TODOs
+*** NEXT use a font without serifs
 *** NEXT add support for properly “typesetting” rationals
     - add "rational mode" to scaled numberline
 *** NEXT add support for changing line width
