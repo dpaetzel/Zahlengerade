@@ -6,11 +6,6 @@ import Data.Aeson -- for processing the input file (YAML)
 import qualified Data.Yaml as Y -- for processing the input file (YAML)
 
 
-import Data.Maybe (fromMaybe)
-import Control.Applicative ((<$>))
-import System.IO (readFile)
-
-
 import Zahlengerade
 
 

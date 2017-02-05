@@ -28,7 +28,7 @@ import Text.Regex
 
 
 import Diagrams.Prelude hiding (start, end)
-import Diagrams.Backend.SVG.CmdLine
+import Diagrams.Backend.SVG
 
 
 class Drawable a where
