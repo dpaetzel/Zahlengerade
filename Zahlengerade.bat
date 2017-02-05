@@ -4,10 +4,10 @@ title Zahlengerade
 
 @echo Zahlengerade: create simple number lines from yaml files
 
-if not defined 1 (
+if [%1]==[] (
 set /p inputfile= "Enter the path to the input file: "
 ) else (
-inputfile=%1
+set inputfile=%1
 )
 
 if ["%inputfile%"]==[""] (
