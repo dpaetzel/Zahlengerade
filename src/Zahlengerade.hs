@@ -22,7 +22,6 @@ module Zahlengerade
 where
 
 
-import Data.List (sortOn)
 import Control.Arrow (second)
 import GHC.Generics -- for parseability using Aeson/YAML
 import Text.Regex
@@ -132,8 +131,12 @@ instance Drawable ScaleMark where
       annotationStrokeSize = stepStrokeSize * 2
       drawLabel :: String -> Diagram B
       drawLabel l = square labelSize # opacity 0.0 <>
-                    text l # fontSize (local (labelSize / 2))
+                    text l # fontSize (local (labelSize / 2)) # font "arial"
 
 
+{-|
+Show a floating point number using German style (with a comma as a decimal mark
+instead of a point).
+-}
 showGerman :: Double -> String
 showGerman double = subRegex (mkRegex "\\.") (show double) ","
