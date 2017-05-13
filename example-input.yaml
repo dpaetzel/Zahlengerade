@@ -1,6 +1,8 @@
 # whether to add a scale (Scaled; then start, end, step, miniStep, mediumStep
 # and annotations must be set) or not (Free, only annotations must be set)
 tag: Scaled
+# the internal proportions (adjust this value if your numberline contains many numbers)
+size: 1
 # the first numbered mark on the number line
 start:
   numerator: -5
@@ -8,10 +10,6 @@ start:
 # the last numbered mark on the number line
 end:
   numerator: 4
-  denominator: 1
-# stepsize for the following numbered scale marks
-step:
-  numerator: 1
   denominator: 1
 # intermediary stepsize for the following scale marks (not numbered)
 miniStep:
@@ -21,6 +19,10 @@ miniStep:
 mediumStep:
   numerator: 1
   denominator: 2
+# stepsize for the following numbered scale marks
+step:
+  numerator: 1
+  denominator: 1
 # numbers to label
 annotations:
   - - numerator: -11

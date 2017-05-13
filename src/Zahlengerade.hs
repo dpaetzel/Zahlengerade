@@ -16,7 +16,7 @@ Portability : POSIX
 
 module Zahlengerade
   ( defaultScaled
-  , draw
+  , drawNumberLine
   , NumberLine (Free, Scaled)
   )
 where
@@ -27,12 +27,8 @@ import GHC.Generics -- for parseability using Aeson/YAML
 import Text.Regex
 
 
-import Diagrams.Prelude hiding (start, end)
+import Diagrams.Prelude hiding (size, start, end)
 import Diagrams.Backend.SVG
-
-
-class Drawable a where
-  draw :: Double -> a -> Diagram B
 
 
 {-|
@@ -43,7 +39,11 @@ annotations).
 Rationals must be used in order to properly test for list element-ness
 ('Double's are unusable because of their natural deviation).
 -}
-data NumberLine = Free { annotations :: [(Rational, String)] }
+data NumberLine =
+  Free
+    { annotations :: [(Rational, String)]
+    , size :: Double
+    }
   | Scaled
     { start       :: Rational
     , end         :: Rational
@@ -51,6 +51,7 @@ data NumberLine = Free { annotations :: [(Rational, String)] }
     , mediumStep  :: Rational
     , miniStep    :: Rational
     , annotations :: [(Rational, String)]
+    , size :: Double
     }
     deriving (Generic) -- for YAML parseability
 
@@ -62,26 +63,30 @@ defaultScaled = Scaled
   , mediumStep = 0.5
   , miniStep = 0.1
   , annotations = [(3.14, "pi")]
+  , size = 1
   }
 
-instance Drawable NumberLine where
-  draw size (Free annotations) =
-    drawArrow scaleMarks -- # lw thick
-    ===
-    strutY 1
-    where
-      scaleMarks :: Diagram B
-      scaleMarks = drawMarks size . map (second Annotation) $ annotations
-  draw size (Scaled start end step mediumStep miniStep annotations) =
-    drawArrow scaleMarks -- # lw thick
-    where
-      scaleMarks :: Diagram B
-      scaleMarks = drawMarks size allMarks
-      allMarks :: [(Rational, ScaleMark)]
-      allMarks = marks ++ mediumMarks ++ miniMarks ++ map (second Annotation) annotations
-      marks = toMarks (StepMark . showGerman . fromRational) $ enumFromThenTo start (start + step) end
-      mediumMarks = toMarks (const MediumStepMark) . fromThenToSkip (map fst marks) start (start + mediumStep) $ end
-      miniMarks = toMarks (const MiniStepMark) . fromThenToSkip (map fst (marks ++ mediumMarks)) start (start + miniStep) $ end
+drawNumberLine :: NumberLine -> Diagram B
+drawNumberLine (Free annotations size) =
+  drawArrow scaleMarks -- # lw thick
+  ===
+  strutY 1
+  where
+    scaleMarks :: Diagram B
+    scaleMarks = drawMarks size . map (second Annotation) $ annotations
+drawNumberLine (Scaled start end step mediumStep miniStep annotations size) =
+  drawArrow scaleMarks -- # lw thick
+  where
+    scaleMarks :: Diagram B
+    scaleMarks = drawMarks size allMarks
+    allMarks :: [(Rational, ScaleMark)]
+    allMarks = marks ++ mediumMarks ++ miniMarks ++ map (second Annotation) annotations
+    marks :: [(Rational, ScaleMark)]
+    marks = toMarks (StepMark . showGerman . fromRational) $ enumFromThenTo start (start + step) end
+    mediumMarks :: [(Rational, ScaleMark)]
+    mediumMarks = toMarks (const MediumStepMark) . fromThenToSkip (map fst marks) start (start + mediumStep) $ end
+    miniMarks :: [(Rational, ScaleMark)]
+    miniMarks = toMarks (const MiniStepMark) . fromThenToSkip (map fst (marks ++ mediumMarks)) start (start + miniStep) $ end
 
 
 drawArrow :: Diagram B -> Diagram B
@@ -91,7 +96,7 @@ drawArrow marks =
 
 
 drawMarks :: Double -> [(Rational, ScaleMark)] -> Diagram B
-drawMarks size marks = position (map (\(x, y) -> (p2 (fromRational x, 0), draw size y)) marks)
+drawMarks size marks = position (map (\(x, y) -> (p2 (fromRational x, 0), drawMark size y)) marks)
 
 
 toMarks :: (Rational -> ScaleMark) -> [Rational] -> [(Rational, ScaleMark)]
@@ -107,31 +112,30 @@ data ScaleMark = MiniStepMark
                | StepMark String
                | Annotation String
 
-instance Drawable ScaleMark where
-  draw size mark = case mark of
-    MiniStepMark     -> vrule miniStepStrokeSize
-                        # lw thin
-    MediumStepMark   -> vrule mediumStepStrokeSize
-                        # lw thin
-    StepMark label   -> (vrule stepStrokeSize
-                        ===
-                        drawLabel label)
-                        # lw thin
-                        alignY (1 - (stepStrokeSize / (stepStrokeSize + labelSize)))
-    Annotation label -> (drawLabel label
-                        ===
-                        vrule annotationStrokeSize)
-                        # lw thin
-                        # alignB
-    where
-      labelSize = size / 4
-      stepStrokeSize = labelSize / 2
-      mediumStepStrokeSize = miniStepStrokeSize * 2
-      miniStepStrokeSize = stepStrokeSize / 4
-      annotationStrokeSize = stepStrokeSize * 2
-      drawLabel :: String -> Diagram B
-      drawLabel l = square labelSize # opacity 0.0 <>
-                    text l # fontSize (local (labelSize / 2)) # font "arial"
+drawMark size mark = case mark of
+  MiniStepMark     -> vrule miniStepStrokeSize
+                      # lw thin
+  MediumStepMark   -> vrule mediumStepStrokeSize
+                      # lw thin
+  StepMark label   -> (vrule stepStrokeSize
+                      ===
+                      drawLabel label)
+                      # lw thin
+                      alignY (1 - (stepStrokeSize / (stepStrokeSize + labelSize)))
+  Annotation label -> (drawLabel label
+                      ===
+                      vrule annotationStrokeSize)
+                      # lw thin
+                      # alignB
+  where
+    labelSize = size / 4
+    stepStrokeSize = labelSize / 2
+    mediumStepStrokeSize = miniStepStrokeSize * 2
+    miniStepStrokeSize = stepStrokeSize / 4
+    annotationStrokeSize = stepStrokeSize * 2
+    drawLabel :: String -> Diagram B
+    drawLabel l = square labelSize # opacity 0.0 <>
+                  text l # fontSize (local (labelSize / 2)) # font "arial"
 
 
 {-|

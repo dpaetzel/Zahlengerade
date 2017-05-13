@@ -31,4 +31,5 @@
     - add "rational mode" to scaled numberline
 *** NEXT add support for changing line width
 *** NEXT add support for changing font/font size
+*** MAYBE automatically determine internal proportions
 *** MAYBE add support for output formats other than SVG

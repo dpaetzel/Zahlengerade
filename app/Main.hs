@@ -14,7 +14,7 @@ instance ToJSON NumberLine
 
 
 main :: IO ()
-main = mainWith (fmap (draw 2) . readInputFile)
+main = mainWith (fmap drawNumberLine . readInputFile)
 
 
 {-|
