@@ -143,4 +143,7 @@ Show a floating point number using German style (with a comma as a decimal mark
 instead of a point).
 -}
 showGerman :: Double -> String
-showGerman double = subRegex (mkRegex "\\.") (show double) ","
+showGerman double =
+  if floor double == ceiling double
+  then show (floor double)
+  else subRegex (mkRegex "\\.") (show double) ","

@@ -28,7 +28,7 @@
    - Alternatively, check out [[file:stack.yaml][stack.yaml]] and [[file:zahlengerade.cabal][zahlengerade.cabal]].
 ** Backlog/TODOs
 *** NEXT add support for properly “typesetting” rationals
-    - add "rational mode" to scaled numberline
+    - add “rational mode” to scaled numberline
 *** NEXT add support for changing line width
 *** NEXT add support for changing font/font size
 *** MAYBE automatically determine internal proportions
