@@ -33,3 +33,7 @@
 *** NEXT add support for changing font/font size
 *** MAYBE automatically determine internal proportions
 *** MAYBE add support for output formats other than SVG
+** Changelog
+*** 2.1 \rightarrow 2.2
+    - Add option ~size~ to adjust a numberline's internal proportions
+    - Remove trailing “,0” from integers
