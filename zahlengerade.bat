@@ -18,7 +18,7 @@ exit
 
 @echo Generating svg file from input file %inputfile%...
 
-start zahlengerade.exe -w 1000 -o output.svg %inputfile%
+zahlengerade.exe -w 1000 -o output.svg %inputfile%
 
 @echo Done.
 

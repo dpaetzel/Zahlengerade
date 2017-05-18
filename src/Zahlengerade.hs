@@ -15,9 +15,10 @@ Portability : POSIX
 
 
 module Zahlengerade
-  ( defaultScaled
+  ( defaultFree
+  , defaultScaled
   , drawNumberLine
-  , NumberLine (Free, Scaled)
+  , NumberLine (..)
   )
 where
 
@@ -54,6 +55,12 @@ data NumberLine =
     , size :: Double
     }
     deriving (Generic) -- for YAML parseability
+
+defaultFree :: NumberLine
+defaultFree = Free
+  { annotations = [(3.14, "pi"), (2.71, "e")]
+  , size = 1
+  }
 
 defaultScaled :: NumberLine
 defaultScaled = Scaled
