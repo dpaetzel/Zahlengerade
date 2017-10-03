@@ -28,6 +28,7 @@ executable zahlengerade-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , aeson
+                     , cli
                      , diagrams-svg
                      , yaml
                      , zahlengerade
