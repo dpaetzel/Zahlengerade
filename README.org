@@ -27,10 +27,13 @@
    - Use [[https://docs.haskellstack.org/en/stable/README/][stack]].  It really helps.
    - Alternatively, check out [[file:stack.yaml][stack.yaml]] and [[file:zahlengerade.cabal][zahlengerade.cabal]].
 ** Backlog/TODOs
+*** NEXT add menu to avoid wrong yaml edits
+*** NEXT add space above line
+    - esp. above line w/o annotations
 *** NEXT add support for properly “typesetting” rationals
     - add “rational mode” to scaled numberline
 *** NEXT add support for changing line width
-*** NEXT add support for changing font/font size
+*** NEXT add support for changing font
 *** MAYBE automatically determine internal proportions
 *** MAYBE add support for output formats other than SVG
 ** Changelog
